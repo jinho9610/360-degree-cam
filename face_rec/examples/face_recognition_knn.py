@@ -38,6 +38,7 @@ import os.path
 import pickle
 from PIL import Image, ImageDraw
 import face_recognition
+import cv2
 from face_recognition.face_recognition_cli import image_files_in_folder
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -150,6 +151,41 @@ def predict(X_img_path, knn_clf=None, model_path=None, distance_threshold=0.6):
     return [(pred, loc) if rec else ("unknown", loc) for pred, loc, rec in zip(knn_clf.predict(faces_encodings), X_face_locations, are_matches)]
 
 
+# def show_prediction_labels_on_image(img_path, predictions):
+#     """
+#     Shows the face recognition results visually.
+
+#     :param img_path: path to image to be recognized
+#     :param predictions: results of the predict function
+#     :return:
+#     """
+
+#     # pil_image = Image.open(img_path)  # .convert("RGB")
+#     # draw = ImageDraw.Draw(pil_image)
+#     pil_image = cv2.imread(img_path)
+
+#     for name, (top, right, bottom, left) in predictions:
+#         # Draw a box around the face using the Pillow module
+#         #draw.rectangle(((left, top), (right, bottom)), outline=(0, 0, 255))
+#         cv2.rectangle(pil_image, (left, top), (right, bottom), (255,0,0), 2)
+
+#         # There's a bug in Pillow where it blows up with non-UTF-8 text
+#         # when using the default bitmap font
+#         name = name.encode("UTF-8")
+
+#         # Draw a label with a name below the face
+#         cv2.rectangle(pil_image, (left, bottom - 30 - 10), (right, bottom), (255,0,0), -1)
+#         cv2.putText(pil_image, name, , cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, 1,  )
+#         draw.text((left + 6, bottom - text_height - 5), name, fill=(255, 255, 255, 255))
+
+#     # Remove the drawing library from memory as per the Pillow docs
+#     del draw
+
+#     # Display the resulting image
+#     # pil_image.save('new.jpg')
+#     pil_image.show()
+#     return pil_image
+
 def show_prediction_labels_on_image(img_path, predictions):
     """
     Shows the face recognition results visually.
@@ -158,7 +194,7 @@ def show_prediction_labels_on_image(img_path, predictions):
     :param predictions: results of the predict function
     :return:
     """
-    pil_image = Image.open(img_path).convert("RGB")
+    pil_image = Image.open(img_path)  # .convert("RGB")
     draw = ImageDraw.Draw(pil_image)
 
     for name, (top, right, bottom, left) in predictions:
@@ -178,15 +214,17 @@ def show_prediction_labels_on_image(img_path, predictions):
     del draw
 
     # Display the resulting image
+    # pil_image.save('new.jpg')
     pil_image.show()
+    return pil_image
 
 
 if __name__ == "__main__":
     # STEP 1: Train the KNN classifier and save it to disk
     # Once the model is trained and saved, you can skip this step next time.
-    print("Training KNN classifier...")
-    classifier = train("knn_examples/train", model_save_path="trained_knn_model.clf", n_neighbors=2)
-    print("Training complete!")
+    # print("Training KNN classifier...")
+    # classifier = train("knn_examples/train", model_save_path="trained_knn_model.clf", n_neighbors=2)
+    # print("Training complete!")
 
     # STEP 2: Using the trained classifier, make predictions for unknown images
     for image_file in os.listdir("knn_examples/test"):
